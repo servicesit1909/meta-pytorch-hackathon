@@ -1,0 +1,69 @@
+# OpSentrix SRE Harness — OpenEnv Manifest
+# IT Incident Management & SRE Domain
+
+name: opsentrix-sre
+version: "1.0.0"
+description: >-
+  OpSentrix SRE Harness — Enterprise-grade OpenEnv environment for
+  IT Incident Management & SRE agent training. Simulates a Kubernetes-style
+  microservices cluster with mock Prometheus/Grafana observability and
+  PagerDuty/Opsgenie incident management. The agent acts as an SRE
+  responding to system failures using typed tool calls.
+
+# Runtime resource constraints
+hardware:
+  vcpu: 2
+  memory: 8gb
+  gpu: false
+
+# Available task scenarios (graders)
+tasks:
+  - id: latency_triage
+    name: "Latency Triage"
+    difficulty: easy
+    max_steps: 3
+    description: >-
+      Triage a Critical latency alert on API-Gateway.
+      Success if the alert status transitions to ACK.
+
+  - id: root_cause_analysis
+    name: "Root Cause Analysis"
+    difficulty: medium
+    max_steps: 10
+    description: >-
+      Investigate Payment-API failures by querying metrics and logs
+      to identify the root cause (OOM — Out of Memory). Success if
+      the agent identifies Payment-API as the failing service via
+      logs containing OOM signatures.
+
+  - id: self_healing_remediation
+    name: "Self-Healing Remediation"
+    difficulty: hard
+    max_steps: 15
+    description: >-
+      Full incident lifecycle: triage, diagnose, remediate, and verify.
+      Restart the correct pod, roll back the config, and confirm health
+      via verify_health. Success if health-check passes after a targeted
+      pod restart and config rollback.
+
+# Server configuration
+server:
+  entrypoint: "server.app:app"
+  port: 7860
+  framework: fastapi
+
+# Metadata
+metadata:
+  domain: "IT Incident Management & SRE"
+  product: "OpSentrix SRE Harness"
+  tags:
+    - incident-management
+    - sre
+    - kubernetes
+    - observability
+    - prometheus
+    - pagerduty
+    - reinforcement-learning
+  license: Apache-2.0
+  authors:
+    - "OpSentrix Contributors"

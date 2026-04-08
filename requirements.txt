@@ -1,0 +1,18 @@
+# OpSentrix SRE Harness — Python dependencies
+# Pin major versions to ensure reproducible builds.
+
+# Core inference — required by submission spec
+openai>=1.60.0,<3.0.0
+
+# HTTP transport for environment client
+httpx>=0.28.0,<1.0.0
+
+# Web framework & ASGI server (environment server)
+fastapi>=0.115.0,<1.0.0
+uvicorn[standard]>=0.34.0,<1.0.0
+
+# Data validation (server-side models)
+pydantic>=2.10.0,<3.0.0
+
+# Local environment variables management
+python-dotenv>=1.0.0,<2.0.0

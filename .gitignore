@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Type checking
+.mypy_cache/
+.pytype/
+
+# Linting
+.ruff_cache/
+
+# Documentation builds
+docs/_build/
+site/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Environment files (secrets)
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Runtime outputs
+outputs/logs/*
+outputs/evals/*
+!outputs/logs/.gitkeep
+!outputs/evals/.gitkeep
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Distribution
+*.whl
+*.tar.gz

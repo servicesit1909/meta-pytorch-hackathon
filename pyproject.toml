@@ -1,0 +1,139 @@
+[build-system]
+requires = ["hatchling>=1.21.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "opsentrix-sre"
+version = "1.1.0"
+description = "OpSentrix SRE Harness — Enterprise-grade OpenEnv environment for IT Incident Management & SRE agent training"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.11"
+authors = [
+    {name = "OpSentrix Contributors"},
+]
+keywords = [
+    "openenv",
+    "reinforcement-learning",
+    "incident-response",
+    "sre",
+    "soc",
+    "simulation",
+    "agent-training",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: System :: Systems Administration",
+    "Typing :: Typed",
+]
+dependencies = [
+    "fastapi>=0.115.0,<1.0.0",
+    "uvicorn[standard]>=0.34.0,<1.0.0",
+    "pydantic>=2.10.0,<3.0.0",
+    "openai>=1.60.0,<3.0.0",
+    "httpx>=0.28.0,<1.0.0",
+    "python-dotenv>=1.0.0,<2.0.0",
+]
+
+[project.optional-dependencies]
+openenv = [
+    "openenv-core>=0.1.0",
+]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.14.0",
+    "pre-commit>=4.0.0",
+]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.27.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/opsentrix/sre-harness"
+Documentation = "https://github.com/opsentrix/sre-harness#readme"
+Repository = "https://github.com/opsentrix/sre-harness"
+Issues = "https://github.com/opsentrix/sre-harness/issues"
+Changelog = "https://github.com/opsentrix/sre-harness/blob/main/CHANGELOG.md"
+
+[project.scripts]
+opsentrix-server = "server.app:main"
+
+# ---------------------------------------------------------------------------
+# Tool Configuration
+# ---------------------------------------------------------------------------
+
+[tool.hatch.build.targets.wheel]
+packages = ["models.py", "server", "inference.py"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "RUF",    # ruff-specific rules
+    "S",      # flake8-bandit (security)
+    "T20",    # flake8-print
+    "PT",     # flake8-pytest-style
+    "LOG",    # flake8-logging
+]
+ignore = [
+    "T201",   # Allow print() in inference.py
+    "S101",   # Allow assert in tests
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["models", "server"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = "openenv.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--cov=server",
+    "--cov=models",
+    "--cov=inference",
+    "--cov-report=term-missing",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks integration tests requiring a running server",
+]
