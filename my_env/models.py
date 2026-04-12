@@ -1,4 +1,4 @@
-# OpSentrix SRE Harness — Pydantic v2 Domain Models
+# OpSentrix SRE Harness -- Pydantic v2 Domain Models
 # Author: Yash B.  |  License: Apache-2.0
 
 from __future__ import annotations
@@ -83,7 +83,7 @@ class TaskManifest(Action):
     max_steps: int
     description: str
 
-# ── Discriminated Union Actions ─────────────────────────────────────────────
+# -- Discriminated Union Actions ---------------------------------------------
 
 class AcknowledgeAlert(Action):
     tool: Literal["acknowledge_alert"] = "acknowledge_alert"
@@ -121,7 +121,7 @@ MyAction = Annotated[
     Field(discriminator="tool"),
 ]
 
-# ── Observation & State ─────────────────────────────────────────────────────
+# -- Observation & State -----------------------------------------------------
 
 class MyObservation(Observation):
     message: str

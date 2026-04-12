@@ -1,5 +1,5 @@
 # ============================================================================
-# Stage 1: Builder — install dependencies with uv for maximum speed
+# Stage 1: Builder -- install dependencies with uv for maximum speed
 # ============================================================================
 FROM python:3.11-slim AS builder
 
@@ -13,14 +13,14 @@ ENV UV_CACHE_DIR=/tmp/uv-cache \
 
 WORKDIR /app
 
-# Copy dependency specification first (Docker layer caching — DRY)
+# Copy dependency specification first (Docker layer caching -- DRY)
 COPY requirements.txt ./
 
 # Install runtime dependencies from requirements.txt (single source of truth)
 RUN uv pip install --system --no-cache --compile-bytecode -r requirements.txt
 
 # ============================================================================
-# Stage 2: Runtime — minimal production image
+# Stage 2: Runtime -- minimal production image
 # ============================================================================
 FROM python:3.11-slim AS runtime
 
@@ -40,7 +40,7 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 WORKDIR /app
 
-# ── Copy application source ───────────────────────────────────────────────
+# -- Copy application source -----------------------------------------------
 # inference.py MUST be at /app/ root (submission requirement)
 COPY --chown=opsentrix:opsentrix inference.py ./inference.py
 COPY --chown=opsentrix:opsentrix demo.py ./demo.py
@@ -80,7 +80,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 # Resource constraint reminder:
 # Run with: docker run --memory=8g --cpus=2 -p 7860:7860 -e HF_TOKEN=... opsentrix-sre
 
-# Start the server — inference.py is at /app/ root for direct execution
+# Start the server -- inference.py is at /app/ root for direct execution
 CMD ["python", "-m", "uvicorn", "server.app:app", \
      "--host", "0.0.0.0", \
      "--port", "7860", \

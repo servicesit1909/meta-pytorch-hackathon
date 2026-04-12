@@ -1,6 +1,6 @@
 ---
 title: My Env Environment Server
-emoji: ⌚
+emoji: 
 colorFrom: yellow
 colorTo: gray
 sdk: docker
@@ -36,9 +36,9 @@ try:
     for msg in messages:
         result = my_envenv.step(MyAction(message=msg))
         print(f"Sent: '{msg}'")
-        print(f"  → Echoed: '{result.observation.echoed_message}'")
-        print(f"  → Length: {result.observation.message_length}")
-        print(f"  → Reward: {result.reward}")
+        print(f"  -> Echoed: '{result.observation.echoed_message}'")
+        print(f"  -> Length: {result.observation.message_length}")
+        print(f"  -> Reward: {result.reward}")
 
 finally:
     # Always clean up
@@ -126,15 +126,15 @@ The deployed space includes:
 **MyObservation**: Contains the echo response and metadata
 - `echoed_message` (str) - The message echoed back
 - `message_length` (int) - Length of the message
-- `reward` (float) - Reward based on message length (length × 0.1)
+- `reward` (float) - Reward based on message length (length x 0.1)
 - `done` (bool) - Always False for echo environment
 - `metadata` (dict) - Additional info like step count
 
 ### Reward
-The reward is calculated as: `message_length × 0.1`
-- "Hi" → reward: 0.2
-- "Hello, World!" → reward: 1.3
-- Empty message → reward: 0.0
+The reward is calculated as: `message_length x 0.1`
+- "Hi" -> reward: 0.2
+- "Hello, World!" -> reward: 1.3
+- Empty message -> reward: 0.0
 
 ## Advanced Usage
 
@@ -239,17 +239,17 @@ uvicorn server.app:app --reload
 
 ```
 my_env/
-├── .dockerignore         # Docker build exclusions
-├── __init__.py            # Module exports
-├── README.md              # This file
-├── openenv.yaml           # OpenEnv manifest
-├── pyproject.toml         # Project metadata and dependencies
-├── uv.lock                # Locked dependencies (generated)
-├── client.py              # MyEnv client
-├── models.py              # Action and Observation models
-└── server/
-    ├── __init__.py        # Server module exports
-    ├── my_env_environment.py  # Core environment logic
-    ├── app.py             # FastAPI application (HTTP + WebSocket endpoints)
-    └── Dockerfile         # Container image definition
++-- .dockerignore         # Docker build exclusions
++-- __init__.py            # Module exports
++-- README.md              # This file
++-- openenv.yaml           # OpenEnv manifest
++-- pyproject.toml         # Project metadata and dependencies
++-- uv.lock                # Locked dependencies (generated)
++-- client.py              # MyEnv client
++-- models.py              # Action and Observation models
++-- server/
+    +-- __init__.py        # Server module exports
+    +-- my_env_environment.py  # Core environment logic
+    +-- app.py             # FastAPI application (HTTP + WebSocket endpoints)
+    +-- Dockerfile         # Container image definition
 ```

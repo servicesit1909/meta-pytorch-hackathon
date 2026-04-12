@@ -1,10 +1,10 @@
 # ==========================================================================
-#  OpSentrix SRE Harness — Package Init
-#  Author: Yash B.  |  License: Apache-2.0
+#  OpSentrix SRE Harness -- Package Init
+#  Author: Yash Bhatt  |  License: Apache-2.0
 # ==========================================================================
 
 """
-OpSentrix SRE Harness — A simulated Kubernetes microservices environment
+OpSentrix SRE Harness -- A simulated Kubernetes microservices environment
 for training RL agents in L1/L2 incident response (triage, diagnosis,
 remediation, verification).
 """
@@ -54,6 +54,7 @@ __all__ = [
     "ServiceHealth",
     "ServiceStatus",
     "TaskDifficulty",
+    "SubmitPostmortem",
     "VerifyHealth",
     "__version__",
 ]

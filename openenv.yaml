@@ -1,10 +1,10 @@
-# OpSentrix SRE Harness — OpenEnv Manifest
+# OpSentrix SRE Harness -- OpenEnv Manifest
 # IT Incident Management & SRE Domain
 
 name: opsentrix-sre
 version: "1.0.0"
 description: >-
-  OpSentrix SRE Harness — Enterprise-grade OpenEnv environment for
+  OpSentrix SRE Harness -- Enterprise-grade OpenEnv environment for
   IT Incident Management & SRE agent training. Simulates a Kubernetes-style
   microservices cluster with mock Prometheus/Grafana observability and
   PagerDuty/Opsgenie incident management. The agent acts as an SRE
@@ -32,7 +32,7 @@ tasks:
     max_steps: 10
     description: >-
       Investigate Payment-API failures by querying metrics and logs
-      to identify the root cause (OOM — Out of Memory). Success if
+      to identify the root cause (OOM -- Out of Memory). Success if
       the agent identifies Payment-API as the failing service via
       logs containing OOM signatures.
 
@@ -45,6 +45,25 @@ tasks:
       Restart the correct pod, roll back the config, and confirm health
       via verify_health. Success if health-check passes after a targeted
       pod restart and config rollback.
+
+  - id: cascade_diagnosis
+    name: "Cascade Failure Diagnosis"
+    difficulty: hard
+    max_steps: 12
+    description: >-
+      Multiple services are degraded simultaneously. Trace the service
+      dependency chain to identify Payment-API as the root-cause service
+      (OOM condition) cascading failures to Order-Service and API-Gateway.
+
+  - id: incident_postmortem
+    name: "Incident Postmortem"
+    difficulty: expert
+    max_steps: 18
+    description: >-
+      Full incident lifecycle with structured postmortem. Investigate,
+      remediate (restart + rollback), verify health, then submit a
+      postmortem report identifying root cause, affected services, and
+      remediation steps taken via submit_postmortem tool.
 
 # Server configuration
 server:
@@ -66,4 +85,4 @@ metadata:
     - reinforcement-learning
   license: Apache-2.0
   authors:
-    - "OpSentrix Contributors"
+    - "Yash Bhatt"

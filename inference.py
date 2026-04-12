@@ -1,10 +1,10 @@
 # ==========================================================================
-#  OpSentrix SRE Harness — Production Inference Agent
-#  Author: Yash B.  |  License: Apache-2.0
+#  OpSentrix SRE Harness -- Production Inference Agent
+#  Author: Yash Bhatt  |  License: Apache-2.0
 # ==========================================================================
 
 """
-OpSentrix SRE Harness — Production Inference Agent.
+OpSentrix SRE Harness -- Production Inference Agent.
 
 Emits OpenEnv-compliant structured logs to stdout:
 
@@ -12,7 +12,7 @@ Emits OpenEnv-compliant structured logs to stdout:
     [STEP]  step=<n> action=<tool> reward=<0.00> done=<true|false> error=<null|msg>
     [END]   success=<true|false> steps=<n> rewards=<r1,r2,...>
 
-SOLID / DRY principles throughout — see module docstring of each class.
+SOLID / DRY principles throughout -- see module docstring of each class.
 """
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ import httpx
 from openai import AsyncOpenAI
 
 # ---------------------------------------------------------------------------
-# Env-var resolution — single source of truth (DRY)
+# Env-var resolution -- single source of truth (DRY)
 # ---------------------------------------------------------------------------
 
 def _require(name: str) -> str:
@@ -59,6 +59,8 @@ TASKS: Final[list[str]]  = [
     "latency_triage",
     "root_cause_analysis",
     "self_healing_remediation",
+    "cascade_diagnosis",
+    "incident_postmortem",
 ]
 
 logging.basicConfig(
@@ -78,7 +80,7 @@ for _s in (signal.SIGINT, signal.SIGTERM):
     signal.signal(_s, _on_signal)
 
 # ---------------------------------------------------------------------------
-# Tool schema — DRY single definition
+# Tool schema -- DRY single definition
 # ---------------------------------------------------------------------------
 
 _TOOLS: Final[list[dict[str, Any]]] = [
@@ -86,7 +88,7 @@ _TOOLS: Final[list[dict[str, Any]]] = [
         "name": "acknowledge_alert",
         "description": (
             "Acknowledge an active alert in the incident manager. "
-            "Always the FIRST action — never skip this step."
+            "Always the FIRST action -- never skip this step."
         ),
         "parameters": {"type": "object",
                        "properties": {"alert_id": {"type": "string",
@@ -96,7 +98,7 @@ _TOOLS: Final[list[dict[str, Any]]] = [
         "name": "query_metrics",
         "description": (
             "Pull Prometheus metrics for a service. "
-            "REQUIRED before restart_pod — the pod_id is only in the metrics response."
+            "REQUIRED before restart_pod -- the pod_id is only in the metrics response."
         ),
         "parameters": {"type": "object",
                        "properties": {
@@ -140,6 +142,21 @@ _TOOLS: Final[list[dict[str, Any]]] = [
                        "properties": {"service": {"type": "string",
                            "description": "Omit to probe all services."}},
                        "required": []}}},
+    {"type": "function", "function": {
+        "name": "submit_postmortem",
+        "description": (
+            "Submit a structured incident postmortem after remediation and health verification. "
+            "Only available in the incident_postmortem task. Requires health_confirmed milestone."
+        ),
+        "parameters": {"type": "object",
+                       "properties": {
+                           "root_cause": {"type": "string",
+                               "description": "Root cause description (must mention OOM/memory)."},
+                           "affected_services": {"type": "array", "items": {"type": "string"},
+                               "description": "List of affected service names (must include Payment-API)."},
+                           "remediation_steps": {"type": "array", "items": {"type": "string"},
+                               "description": "List of remediation actions taken."}},
+                       "required": ["root_cause", "affected_services", "remediation_steps"]}}},
 ]
 
 # ---------------------------------------------------------------------------
@@ -153,32 +170,40 @@ SRE operating within the OpSentrix incident-response simulator.
 ## Reasoning Protocol
 For every turn, internally apply this mental checklist before issuing a tool call:
 
-  OBSERVE   → What alert, metrics, logs, and service states are visible?
-  HYPOTHESIZE → What failure mode best fits the evidence? (OOM? Cascade? Bad deploy?)
-  PRIORITIZE  → Which information gap, closed, would most reduce diagnostic uncertainty?
-  ACT       → Issue exactly ONE tool call to close that gap or execute the next remediation step.
-  VALIDATE  → After receiving results, confirm or revise the hypothesis.
+  OBSERVE   -> What alert, metrics, logs, and service states are visible?
+  HYPOTHESIZE -> What failure mode best fits the evidence? (OOM? Cascade? Bad deploy?)
+  PRIORITIZE  -> Which information gap, closed, would most reduce diagnostic uncertainty?
+  ACT       -> Issue exactly ONE tool call to close that gap or execute the next remediation step.
+  VALIDATE  -> After receiving results, confirm or revise the hypothesis.
 
 ## Hard Constraints
-1. Issue EXACTLY ONE tool call per turn — never combine or skip.
-2. pod_id is discovered ONLY via query_metrics — never assumed or fabricated.
+1. Issue EXACTLY ONE tool call per turn -- never combine or skip.
+2. pod_id is discovered ONLY via query_metrics -- never assumed or fabricated.
 3. Providing a wrong pod_id to restart_pod terminates the episode with total reward = 0.
 4. Always call acknowledge_alert before any investigative or remediation action.
 5. Always call verify_health after restart_pod or rollback_config.
 
 ## Incident Playbook
-  Step 1 — TRIAGE    : acknowledge_alert  (exact alert_id from observation)
-  Step 2 — TELEMETRY : query_metrics      (degraded service → note pod_id and metric values)
-  Step 3 — CAUSATION : fetch_logs         (degraded service → look for OOM / heap / GC / exception)
-  Step 4 — REMEDIATE : restart_pod        (use pod_id from Step 2, verbatim)
+  Step 1 -- TRIAGE    : acknowledge_alert  (exact alert_id from observation)
+  Step 2 -- TELEMETRY : query_metrics      (degraded service -> note pod_id and metric values)
+  Step 3 -- CAUSATION : fetch_logs         (degraded service -> look for OOM / heap / GC / exception)
+  Step 4 -- REMEDIATE : restart_pod        (use pod_id from Step 2, verbatim)
                         rollback_config    (if log shows bad release version)
-  Step 5 — CONFIRM   : verify_health      (confirms recovery and closes the episode)
+  Step 5 -- CONFIRM   : verify_health      (confirms recovery and closes the episode)
 
 ## Diagnostic Heuristics
-- memory_usage > 90% + OOM in logs       → restart_pod, then rollback_config
-- error_rate > 50% + normal memory       → fetch_logs for application exception traces
-- latency spike, healthy memory          → likely upstream dependency; check circuit-breaker logs
-- Multiple services degraded             → query_metrics each individually; do not batch
+- memory_usage > 90% + OOM in logs       -> restart_pod, then rollback_config
+- error_rate > 50% + normal memory       -> fetch_logs for application exception traces
+- latency spike, healthy memory          -> likely upstream dependency; check circuit-breaker logs
+- Multiple services degraded             -> query_metrics each individually; trace dependency chain to root cause
+- Cascade failures                       -> find the leaf service in the dependency graph that is DOWN (root cause)
+
+## Task-Specific Guidance
+- **latency_triage**: Query metrics first to identify the degraded service, then acknowledge the CRITICAL alert (ignore warnings).
+- **root_cause_analysis**: Query metrics on Payment-API, then fetch logs to find OOM evidence.
+- **self_healing_remediation**: Full lifecycle -- acknowledge, query metrics, fetch logs, restart pod, rollback, verify health.
+- **cascade_diagnosis**: Multiple services are degraded. Trace the dependency chain -- query metrics on each, fetch logs on the root cause.
+- **incident_postmortem**: Same as self_healing, plus submit_postmortem with root cause (mention OOM/memory), affected services (include Payment-API), and remediation steps.
 
 ## Response Format
 Respond with a single tool call only. No prose, no commentary outside the function call.
@@ -213,7 +238,7 @@ class Observation:
         )
 
 # ---------------------------------------------------------------------------
-# ISP — narrow protocols
+# ISP -- narrow protocols
 # ---------------------------------------------------------------------------
 
 class EnvPort(Protocol):
@@ -223,7 +248,7 @@ class EnvPort(Protocol):
     async def close(self) -> None: ...
 
 # ---------------------------------------------------------------------------
-# HTTP client (LSP — satisfies EnvPort)
+# HTTP client (LSP -- satisfies EnvPort)
 # ---------------------------------------------------------------------------
 
 class OpSentrixClient:
@@ -287,7 +312,7 @@ class ObservationFormatter:
                     f"  pod_id={s.get('pod_id')}  phase={s.get('pod_phase')}"
                 )
         parts.append(f"\nreward={obs.reward:.2f}  done={obs.done}  success={obs.success}")
-        parts.append("\nApply OBSERVE→HYPOTHESIZE→PRIORITIZE→ACT. Issue exactly one tool call:")
+        parts.append("\nApply OBSERVE->HYPOTHESIZE->PRIORITIZE->ACT. Issue exactly one tool call:")
         return "\n".join(parts)
 
 # ---------------------------------------------------------------------------
@@ -319,14 +344,14 @@ class TextActionParser:
         return data
 
 # ---------------------------------------------------------------------------
-# LLM Agent — ARIA (SRP + DIP)
+# LLM Agent -- ARIA (SRP + DIP)
 # ---------------------------------------------------------------------------
 
 class SREAgent:
     """
-    ARIA — Automated Remediation Intelligence Agent.
+    ARIA -- Automated Remediation Intelligence Agent.
     
-    Dual-mode: OpenAI function-calling → JSON-in-text fallback.
+    Dual-mode: OpenAI function-calling -> JSON-in-text fallback.
     History is bounded to prevent OOM on long episodes.
     Strictly maintains OpenAI's tool-call / tool-result message ordering.
     """
@@ -413,7 +438,7 @@ class SREAgent:
             return {"tool": "verify_health"}
 
 # ---------------------------------------------------------------------------
-# Structured logger — owns all stdout (SRP)
+# Structured logger -- owns all stdout (SRP)
 # ---------------------------------------------------------------------------
 
 class StructuredLogger:
@@ -504,7 +529,7 @@ class Evaluator:
         wall = time.monotonic()
         results = []
         for tid in self._tasks:
-            _log.info("── Running task: %s", tid)
+            _log.info("-- Running task: %s", tid)
             ok = await self._runner.run(tid, wall)
             results.append(ok)
 
