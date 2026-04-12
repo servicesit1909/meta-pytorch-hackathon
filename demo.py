@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-# OpSentrix SRE Harness — Local Demo Runner
-# Author: Yash B.  |  License: Apache-2.0
+# OpSentrix SRE Harness -- Local Demo Runner
+# Author: Yash Bhatt  |  License: Apache-2.0
 
 """
-OpSentrix SRE Harness — Local Demo Runner.
+OpSentrix SRE Harness -- Local Demo Runner.
 
 This script spins up the OpSentrix FastAPI server in a background thread,
 waits for it to become healthy, then executes ``inference.py``'s evaluation
-loop — all from a single terminal command.
+loop -- all from a single terminal command.
 
 Usage::
 
@@ -93,7 +93,7 @@ def _wait_for_server(timeout: int = STARTUP_TIMEOUT) -> bool:
 
 def main() -> None:
     print("=" * 68, flush=True)
-    print("  OpSentrix SRE Harness — Demo Runner", flush=True)
+    print("  OpSentrix SRE Harness -- Demo Runner", flush=True)
     print("=" * 68, flush=True)
 
     # Validate required env-vars early so the error is obvious
@@ -111,7 +111,7 @@ def main() -> None:
     os.environ.setdefault("MODEL_NAME", "gpt-4.1-mini")
 
     # Start server in a daemon thread
-    print(f"Starting OpSentrix server on port {SERVER_PORT} …", flush=True)
+    print(f"Starting OpSentrix server on port {SERVER_PORT} ...", flush=True)
     thread = threading.Thread(target=_start_server, daemon=True)
     thread.start()
 

@@ -1,11 +1,11 @@
-# OpSentrix SRE Harness — OpenEnv Manifest
+# OpSentrix SRE Harness -- OpenEnv Manifest
 # IT Incident Management & SRE Domain
 
 spec_version: 1
 name: opsentrix-sre
 version: "1.0.0"
 description: >-
-  OpSentrix SRE Harness — Enterprise-grade OpenEnv environment for
+  OpSentrix SRE Harness -- Enterprise-grade OpenEnv environment for
   IT Incident Management & SRE agent training. Simulates a Kubernetes-style
   microservices cluster with mock Prometheus/Grafana observability and
   PagerDuty/Opsgenie incident management. The agent acts as an SRE
@@ -33,7 +33,7 @@ tasks:
     max_steps: 10
     description: >-
       Investigate Payment-API failures by querying metrics and logs
-      to identify the root cause (OOM — Out of Memory). Success if
+      to identify the root cause (OOM -- Out of Memory). Success if
       the agent identifies Payment-API as the failing service via
       logs containing OOM signatures.
 

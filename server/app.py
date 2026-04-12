@@ -1,20 +1,20 @@
 # ==========================================================================
-#  OpSentrix SRE Harness — FastAPI Application
-#  Author: Yash B.
+#  OpSentrix SRE Harness -- FastAPI Application
+#  Author: Yash Bhatt
 #  License: Apache-2.0
 # ==========================================================================
 
 """
-OpSentrix SRE Harness — FastAPI Application.
+OpSentrix SRE Harness -- FastAPI Application.
 
 This module wires together the :class:`OpSentrixEnvironment` and exposes it
 via HTTP endpoints compatible with the OpenEnv protocol:
 
-    POST /reset   — Start a new episode (optionally specify task_id, seed).
-    POST /step    — Submit an SRE action and receive an SREObservation.
-    GET  /state   — Retrieve current episode metadata.
-    GET  /health  — Kubernetes-style liveness probe.
-    GET  /ready   — Kubernetes-style readiness probe.
+    POST /reset   -- Start a new episode (optionally specify task_id, seed).
+    POST /step    -- Submit an SRE action and receive an SREObservation.
+    GET  /state   -- Retrieve current episode metadata.
+    GET  /health  -- Kubernetes-style liveness probe.
+    GET  /ready   -- Kubernetes-style readiness probe.
 
 Usage::
 
@@ -40,7 +40,7 @@ from fastapi.responses import JSONResponse
 from pydantic import TypeAdapter
 
 # ---------------------------------------------------------------------------
-# Local imports — dual-import pattern
+# Local imports -- dual-import pattern
 # ---------------------------------------------------------------------------
 try:
     from ..models import (
@@ -128,7 +128,7 @@ def _get_env() -> OpSentrixEnvironment:
 @asynccontextmanager
 async def _lifespan(application: FastAPI):
     """Startup/shutdown lifecycle hooks."""
-    logger.info("OpSentrix SRE Harness starting — version %s", _APP_VERSION)
+    logger.info("OpSentrix SRE Harness starting -- version %s", _APP_VERSION)
     _get_env()
     yield
     logger.info("OpSentrix SRE Harness shutting down")
@@ -151,7 +151,7 @@ def _build_standalone_app() -> FastAPI:
         lifespan=_lifespan,
     )
 
-    # ── Middleware ──────────────────────────────────────────────────────
+    # -- Middleware ------------------------------------------------------
 
     application.add_middleware(
         CORSMiddleware,
@@ -171,7 +171,7 @@ def _build_standalone_app() -> FastAPI:
         response.headers["X-Frame-Options"] = "DENY"
         return response
 
-    # ── Exception handlers ─────────────────────────────────────────────
+    # -- Exception handlers ---------------------------------------------
 
     @application.exception_handler(ValueError)
     async def _value_error_handler(_request: Request, exc: ValueError):
@@ -185,7 +185,7 @@ def _build_standalone_app() -> FastAPI:
             content={"detail": "Internal server error. Check server logs."},
         )
 
-    # ── Core Endpoints ─────────────────────────────────────────────────
+    # -- Core Endpoints -------------------------------------------------
 
     @application.post(
         "/reset",
@@ -239,7 +239,7 @@ def _build_standalone_app() -> FastAPI:
         env = _get_env()
         return env.state
 
-    # ── Operational Endpoints ──────────────────────────────────────────
+    # -- Operational Endpoints ------------------------------------------
 
     @application.get(
         "/health",
@@ -294,7 +294,7 @@ def _build_standalone_app() -> FastAPI:
     @application.get(
         "/tools",
         summary="List available tools",
-        description="Return the action space — all typed tools with their schemas.",
+        description="Return the action space -- all typed tools with their schemas.",
         tags=["Environment"],
     )
     async def list_tools() -> dict[str, Any]:
@@ -336,6 +336,14 @@ def _build_standalone_app() -> FastAPI:
                 "description": "Run health/readiness probes on services.",
                 "parameters": {
                     "service": {"type": "string", "required": False},
+                },
+            },
+            "submit_postmortem": {
+                "description": "Submit a structured incident postmortem (incident_postmortem task only).",
+                "parameters": {
+                    "root_cause": {"type": "string", "required": True},
+                    "affected_services": {"type": "array", "items": {"type": "string"}, "required": True},
+                    "remediation_steps": {"type": "array", "items": {"type": "string"}, "required": True},
                 },
             },
         }

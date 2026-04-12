@@ -1,7 +1,7 @@
-# OpSentrix SRE Harness — Python dependencies
+# OpSentrix SRE Harness -- Python dependencies
 # Pin major versions to ensure reproducible builds.
 
-# Core inference — required by submission spec
+# Core inference -- required by submission spec
 openai>=1.60.0,<3.0.0
 
 # HTTP transport for environment client
@@ -16,3 +16,6 @@ pydantic>=2.10.0,<3.0.0
 
 # Local environment variables management
 python-dotenv>=1.0.0,<2.0.0
+
+# OpenEnv framework (required for deployment validation)
+openenv-core>=0.2.0

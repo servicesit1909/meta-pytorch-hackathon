@@ -1,5 +1,5 @@
-# OpSentrix SRE Harness — Pydantic v2 Domain Models
-# Author: Yash B.  |  License: Apache-2.0
+# OpSentrix SRE Harness -- Pydantic v2 Domain Models
+# Author: Yash Bhatt  |  License: Apache-2.0
 
 from __future__ import annotations
 
@@ -39,6 +39,7 @@ class TaskDifficulty(str, Enum):
     EASY = "easy"
     MEDIUM = "medium"
     HARD = "hard"
+    EXPERT = "expert"
 
 class AlertInfo(BaseModel):
     alert_id: str
@@ -87,7 +88,7 @@ class ResetRequest(BaseModel):
     seed: int | None = None
     episode_id: str | None = None
 
-# ── Discriminated Union Actions ─────────────────────────────────────────────
+# -- Discriminated Union Actions ---------------------------------------------
 
 class AcknowledgeAlert(BaseModel):
     tool: Literal["acknowledge_alert"] = "acknowledge_alert"
@@ -118,15 +119,21 @@ class VerifyHealth(BaseModel):
     tool: Literal["verify_health"] = "verify_health"
     service: str | None = None
 
+class SubmitPostmortem(BaseModel):
+    tool: Literal["submit_postmortem"] = "submit_postmortem"
+    root_cause: str
+    affected_services: list[str]
+    remediation_steps: list[str]
+
 SREAction = Annotated[
-    AcknowledgeAlert | QueryMetrics | FetchLogs | RestartPod | RollbackConfig | VerifyHealth,
+    AcknowledgeAlert | QueryMetrics | FetchLogs | RestartPod | RollbackConfig | VerifyHealth | SubmitPostmortem,
     Field(discriminator="tool"),
 ]
 
 class StepRequest(BaseModel):
     action: SREAction
 
-# ── Observation & State ─────────────────────────────────────────────────────
+# -- Observation & State -----------------------------------------------------
 
 class SREObservation(BaseModel):
     message: str
