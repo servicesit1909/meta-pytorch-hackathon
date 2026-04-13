@@ -316,6 +316,9 @@ class OpSentrixEnvironment(_Base):  # type: ignore
     # ------------------------------------------------------------------ step
 
     def step(self, action: Any, **_: Any) -> SREObservation:
+        # Convert SREActionWrapper (from create_app) to typed action
+        if hasattr(action, 'to_typed_action'):
+            action = action.to_typed_action()
         if self._done:
             return SREObservation(
                 message="Episode ended. Call reset() to begin a new one.",
