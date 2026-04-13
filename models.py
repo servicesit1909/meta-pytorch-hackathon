@@ -130,6 +130,27 @@ SREAction = Annotated[
     Field(discriminator="tool"),
 ]
 
+class SREActionWrapper(BaseModel):
+    """Wrapper that makes the discriminated union compatible with create_app()."""
+    tool: str
+    alert_id: str | None = None
+    service: str | None = None
+    metric_name: str | None = None
+    level: str | None = None
+    limit: int = 50
+    pod_id: str | None = None
+    target_revision: str | None = None
+    root_cause: str | None = None
+    affected_services: list[str] | None = None
+    remediation_steps: list[str] | None = None
+
+    def to_typed_action(self) -> AcknowledgeAlert | QueryMetrics | FetchLogs | RestartPod | RollbackConfig | VerifyHealth | SubmitPostmortem:
+        data = {k: v for k, v in self.model_dump().items() if v is not None}
+        from pydantic import TypeAdapter
+        adapter = TypeAdapter(SREAction)
+        return adapter.validate_python(data)
+
+
 class StepRequest(BaseModel):
     action: SREAction
 
